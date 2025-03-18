@@ -17,7 +17,6 @@ const WatchedBox = ({ tempWatchedData }) => {
       {isOpen2 && (
         <>
           <WatchedSummary watched={watched} />
-
           <WatchedMovieList watched={watched} />
         </>
       )}
