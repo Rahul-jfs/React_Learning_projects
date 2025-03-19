@@ -17,19 +17,6 @@ function Test() {
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <StarRating maxRating={10} defaultRating={3} />
-
-    <Test />
-    {/* <App /> */}
+    <App />
   </StrictMode>
 );
-
-//  <StarRating
-//    maxRating={5}
-//    messages={["Terrible", "Bad", "Okay", "Good", "Amazing"]}
-//  />;
-
-//  <StarRating
-//    maxRating={5}
-//    messages={["Terrible", "Bad", "Okay", "Good", "Amazing"]}
-//  />;
