@@ -13,6 +13,8 @@ import Search from "./components/Search";
 import WatchedMovieList from "./components/WatchedMovieList";
 import WatchedSummary from "./components/WatchedSummary";
 import { KEY } from "./config/constants";
+import { useMovie } from "./config/useMovie";
+import { useLocalStorageState } from "./config/useLocalStorageState";
 
 const tempMovieData = [
   {
@@ -64,12 +66,11 @@ const tempWatchedData = [
 // const KEY = "f84fc31d";
 
 export default function App() {
-  const [query, setQuery] = useState("inception");
-  const [movies, setMovies] = useState([]);
-  const [watched, setWatched] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [query, setQuery] = useState("");
+  const [watched, setWatched] = useLocalStorageState([], "watched");
+
   const [selectedId, setSelectedId] = useState(null);
-  const [error, setError] = useState("");
+  const { movies, isLoading, error } = useMovie(query);
 
   function handleSelectMovie(id) {
     setSelectedId((selectedId) => (id === selectedId ? null : id));
@@ -86,46 +87,6 @@ export default function App() {
   function handleDeleteWatched(id) {
     setWatched((watched) => watched.filter((movie) => movie.imdbID !== id));
   }
-
-  useEffect(
-    function () {
-      async function fetchMovies() {
-        try {
-          setIsLoading(true);
-          setError(""); // set the error back to "" after every change in query state or else it will only display the Error message
-          const result = await fetch(
-            `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`
-          );
-
-          if (!result.ok) {
-            throw new Error("Something went wrong with fetching movies");
-          }
-
-          const data = await result.json();
-
-          if (data.Response === "False") {
-            throw new Error("Movie not found");
-          }
-
-          setMovies(data.Search);
-          // console.log(data.Search);
-        } catch (err) {
-          console.log(err.message);
-          setError(err.message);
-        } finally {
-          setIsLoading(false);
-        }
-      }
-      if (query.length < 3) {
-        //this block displays no movie  when the search string is less than 3 or when there is no string in search bar and sets movie to empty array
-        setMovies([]);
-        setError("");
-        return; // fetchMovies() is not called because of return
-      }
-      fetchMovies();
-    },
-    [query]
-  );
 
   return (
     <>

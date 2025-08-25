@@ -2,11 +2,21 @@ import { useEffect, useState } from "react";
 import { KEY } from "../config/constants";
 import StarRating from "./StarRating";
 import Loading from "./Loading";
+import { useRef } from "react";
 
 const MovieDetails = ({ selectedId, onCloseMovie, onAddWatched, watched }) => {
   const [movie, setMovie] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [userRating, setUserRating] = useState("");
+
+  const countRef = useRef(0);
+
+  useEffect(
+    function () {
+      if (userRating) countRef.current++;
+    },
+    [userRating]
+  );
 
   const isWatched = watched.map((movie) => movie.imdbID).includes(selectedId);
 
@@ -36,6 +46,7 @@ const MovieDetails = ({ selectedId, onCloseMovie, onAddWatched, watched }) => {
       imdbRating: Number(imdbRating),
       runtime: Number(runtime.split(" ").at(0)),
       userRating,
+      countRatingDecisions: countRef,
     };
 
     onAddWatched(newWatchedMovie);
@@ -50,7 +61,6 @@ const MovieDetails = ({ selectedId, onCloseMovie, onAddWatched, watched }) => {
           `http://www.omdbapi.com/?apikey=${KEY}&i=${selectedId}`
         );
         const data = await res.json();
-        console.log(data);
         setMovie(data);
         setIsLoading(false);
       }
@@ -66,12 +76,25 @@ const MovieDetails = ({ selectedId, onCloseMovie, onAddWatched, watched }) => {
 
       return function () {
         document.title = "usePopcorn";
-        console.log(`CleanUp for the movie ${title}`); // since the cleanup will run before the effect and after effect,
+        // since the cleanup will run before the effect and after effect,
         //And this runs after the movie has been closed, then how will it remember the title name, this is because of closures, since the function was created during the start so the return function remembers the title
       };
     },
     [title]
   );
+
+  useEffect(() => {
+    function callback(e) {
+      if (e.code === "Escape") {
+        onCloseMovie();
+      }
+    }
+    document.addEventListener("keydown", callback);
+
+    return function () {
+      document.removeEventListener("keydown", callback);
+    };
+  }, [onCloseMovie]);
 
   return (
     <div className="details">
