@@ -1,5 +1,5 @@
 {
-  "name": "06-worldwise",
+  "name": "07-atomic-blog",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -7,16 +7,12 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview",
-    "server": "json-server --watch data/cities.json --port 8000"
+    "preview": "vite preview"
   },
   "dependencies": {
-    "json-server": "^1.0.0-beta.3",
-    "leaflet": "^1.9.4",
+    "@faker-js/faker": "^9.9.0",
     "react": "^19.1.1",
-    "react-dom": "^19.1.1",
-    "react-leaflet": "^5.0.0",
-    "react-router-dom": "^7.8.2"
+    "react-dom": "^19.1.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.33.0",
