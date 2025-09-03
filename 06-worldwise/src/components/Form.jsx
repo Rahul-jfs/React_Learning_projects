@@ -1,29 +1,108 @@
 // "https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=0&longitude=0"
 
 import { useState } from "react";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 import styles from "./Form.module.css";
 import Button from "./Button";
-import { useNavigate } from "react-router-dom";
 import BackButton from "./BackButton";
+import { useUrlPosition } from "../hooks/useUrlPosition";
+import { useEffect } from "react";
+import Message from "./Message";
+import Spinner from "./Spinner";
+import { useCities } from "../contexts/CitiesContext";
+import { useNavigate } from "react-router-dom";
 
 export function convertToEmoji(countryCode) {
+  if (!countryCode || countryCode.length !== 2) return "🏳️"; // fallback flag
+
   const codePoints = countryCode
     .toUpperCase()
     .split("")
     .map((char) => 127397 + char.charCodeAt());
+
   return String.fromCodePoint(...codePoints);
 }
 
+const BASE_URL = "https://api.opencagedata.com/geocode/v1/json";
+const API_KEY = "abfb296ea55b44ca873b067e7a5aa181";
+
 function Form() {
+  const [lat, lng] = useUrlPosition();
+  const { createCity, isLoading } = useCities();
   const navigate = useNavigate();
+
   const [cityName, setCityName] = useState("");
   const [country, setCountry] = useState("");
   const [date, setDate] = useState(new Date());
   const [notes, setNotes] = useState("");
+  const [isLoadingGeocoding, setIsLoadingGeocoding] = useState(false);
+  const [emoji, setEmoji] = useState("");
+  const [geocodingError, setGeocodingError] = useState("");
+
+  useEffect(
+    function () {
+      if (!lat & !lng) return;
+
+      async function fetchCityData() {
+        try {
+          setGeocodingError("");
+          setIsLoadingGeocoding(true);
+          const res = await fetch(`${BASE_URL}?q=${lat}+${lng}&key=${API_KEY}`);
+          const data = await res.json();
+
+          if (!data.results[0].components.country) {
+            throw new Error(
+              "That doesn't seems to be a city, click somewhere else 😉"
+            );
+          }
+          setCityName(
+            data.results[0].components.village ||
+              data.results[0].components.state ||
+              data.results[0].components._normalized_city ||
+              ""
+          );
+          setCountry(data.results[0].components.country);
+          setEmoji(convertToEmoji(data.results[0].components.country_code));
+        } catch (err) {
+          setGeocodingError(err.message);
+        } finally {
+          setIsLoadingGeocoding(false);
+        }
+      }
+      fetchCityData();
+    },
+    [lat, lng]
+  );
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    if (!date || !cityName) return;
+
+    const newCity = {
+      cityName,
+      country,
+      emoji,
+      date,
+      notes,
+      position: { lat, lng },
+    };
+
+    await createCity(newCity);
+
+    navigate("/app/cities");
+  }
+
+  if (!lat && !lng) return <Message message="Click somewhere on the map" />;
+  if (isLoadingGeocoding) return <Spinner />;
+  if (geocodingError) return <Message message={geocodingError} />;
 
   return (
-    <form className={styles.form}>
+    <form
+      className={`${styles.form} ${isLoading ? styles.loading : ""}`}
+      onSubmit={handleSubmit}
+    >
       <div className={styles.row}>
         <label htmlFor="cityName">City name</label>
         <input
@@ -31,15 +110,16 @@ function Form() {
           onChange={(e) => setCityName(e.target.value)}
           value={cityName}
         />
-        {/* <span className={styles.flag}>{emoji}</span> */}
+        <span className={styles.flag}>{emoji}</span>
       </div>
 
       <div className={styles.row}>
         <label htmlFor="date">When did you go to {cityName}?</label>
-        <input
+        <DatePicker
           id="date"
-          onChange={(e) => setDate(e.target.value)}
-          value={date}
+          selected={date}
+          onChange={(date) => setDate(date)}
+          dateFormat="dd/MM/yyyy"
         />
       </div>
 
