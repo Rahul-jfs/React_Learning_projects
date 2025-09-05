@@ -1,10 +1,9 @@
-import { useEffect } from "react";
 import { useAuth } from "../contexts/FakeAuthProvider";
 import styles from "./User.module.css";
 import { useNavigate } from "react-router-dom";
 
 function User() {
-  const { user, logout, isAuthenticated } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
 
   function handleClick(e) {
