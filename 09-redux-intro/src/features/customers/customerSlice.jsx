@@ -37,4 +37,3 @@ const customerSlice = createSlice({
 export const { createCustomer, updateName } = customerSlice.actions;
 
 export default customerSlice.reducer;
-console.log(customerSlice);
