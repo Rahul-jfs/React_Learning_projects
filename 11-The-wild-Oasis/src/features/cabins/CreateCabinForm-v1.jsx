@@ -6,26 +6,21 @@ import Form from "../../ui/Form";
 import Button from "../../ui/Button";
 import FileInput from "../../ui/FileInput";
 import Textarea from "../../ui/Textarea";
-import { createEditCabin } from "../../services/apiCabins";
+import { createCabin } from "../../services/apiCabins";
 import toast from "react-hot-toast";
 import FormRow from "../../ui/FormRow";
 
-function CreateCabinForm({ cabinToEdit = {} }) {
-  const { id: editId, ...editValues } = cabinToEdit;
-  const isEditSession = Boolean(editId);
-
-  const { register, handleSubmit, reset, watch, formState } = useForm({
-    defaultValues: isEditSession ? editValues : {},
-  });
-
+function CreateCabinForm() {
+  const { register, handleSubmit, reset, watch, formState } = useForm();
   const { errors } = formState;
-
+  // console.log(errors);
   const regularPrice = watch("regularPrice");
 
   const queryClient = useQueryClient();
 
   const { mutate, isLoading: isCreating } = useMutation({
-    mutationFn: createEditCabin,
+    // mutationFn: (newCabin) => createCabin(newCabin) // same as below line
+    mutationFn: createCabin,
     onSuccess: () => {
       toast.success("New cabin created Successfully");
       queryClient.invalidateQueries({ queryKey: ["cabins"] });
@@ -122,9 +117,7 @@ function CreateCabinForm({ cabinToEdit = {} }) {
         <Button variation="secondary" type="reset">
           Cancel
         </Button>
-        <Button disabled={isCreating}>
-          {isEditSession ? "Edit cabin" : "Create new cabin"}
-        </Button>
+        <Button disabled={isCreating}>Add cabin</Button>
       </FormRow>
     </Form>
   );
