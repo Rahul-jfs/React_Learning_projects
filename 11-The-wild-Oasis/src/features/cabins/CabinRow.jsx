@@ -1,10 +1,10 @@
+import { useState } from "react";
+
 import styled from "styled-components";
 import { formatCurrency } from "../../utils/helpers";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { deleteCabin } from "../../services/apiCabins";
-import toast from "react-hot-toast";
-import { useState } from "react";
 import CreateCabinForm from "./CreateCabinForm";
+import { useDeleteCabin } from "./useDeleteCabin";
+import { HiPencil, HiSquare2Stack, HiTrash } from "react-icons/hi2";
 
 const TableRow = styled.div`
   display: grid;
@@ -47,6 +47,7 @@ const Discount = styled.div`
 
 export default function CabinRow({ cabin }) {
   const [showForm, setShowForm] = useState(false);
+  const { isDeleting, deleteCabin } = useDeleteCabin();
 
   const {
     id: cabinId,
@@ -56,28 +57,6 @@ export default function CabinRow({ cabin }) {
     discount,
     image,
   } = cabin;
-
-  const queryClient = useQueryClient();
-
-  //here mutate is the callback fn, that we can connect with the button, so that it call the mutation Function
-  //So, when we delete the cabin, it doesnot reload the page/ it doesnot load the new data as it is in still stale, When we refresh the page, it disappears.
-
-  //To fetch the new data/ updated data, if we make the query as invalidate, then it will refetch/ reload the data. So, onSuccess of the mutation query, we have to make the query as invalidate, so that we can reload the new data And we have to give that at the QueryClient level that is present in App.jsx file, so we can access that QueryClient using useQueryClient hook. And we have to give the queryKey that has to be refetched inside the invalidateQueries.
-
-  const { isLoading: isDeleting, mutate } = useMutation({
-    mutationFn: deleteCabin,
-    onSuccess: () => {
-      toast.success("Cabin deleted successfully");
-
-      queryClient.invalidateQueries({
-        queryKey: ["cabins"],
-      });
-    },
-    onError: (err) => {
-      toast.error(err.message);
-      // this err comes for the deleteCabin function when it throws an error
-    },
-  });
 
   return (
     <>
@@ -92,9 +71,14 @@ export default function CabinRow({ cabin }) {
           <span>&mdash;</span>
         )}
         <div>
-          <button onClick={() => setShowForm((show) => !show)}>Edit</button>
-          <button onClick={() => mutate(cabinId)} disabled={isDeleting}>
-            Delete
+          <button>
+            <HiSquare2Stack />
+          </button>
+          <button onClick={() => setShowForm((show) => !show)}>
+            <HiPencil />
+          </button>
+          <button onClick={() => deleteCabin(cabinId)} disabled={isDeleting}>
+            <HiTrash />
           </button>
         </div>
       </TableRow>
