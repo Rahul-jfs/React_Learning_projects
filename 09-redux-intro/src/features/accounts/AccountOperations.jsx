@@ -14,6 +14,7 @@ function AccountOperations() {
     loan: currentLoan,
     loanPurpose: currentLoanPurpose,
     isLoading,
+    balance,
   } = useSelector((store) => store.account);
 
   function handleDeposit() {
@@ -25,7 +26,7 @@ function AccountOperations() {
   }
 
   function handleWithdrawal() {
-    if (!withdrawalAmount) return;
+    if (!withdrawalAmount || withdrawalAmount > balance) return;
 
     dispatch(withdraw(withdrawalAmount));
     setWithdrawalAmount("");
@@ -40,6 +41,7 @@ function AccountOperations() {
   }
 
   function handlePayLoan() {
+    if (balance < currentLoan) return;
     dispatch(payLoan());
   }
 
