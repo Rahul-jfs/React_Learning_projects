@@ -71,6 +71,30 @@
         "lat": "39.16414104768742",
         "lng": "-6.7794694276634075"
       }
+    },
+    {
+      "id": "3984",
+      "cityName": "Villanueva del Duque",
+      "country": "Spain",
+      "emoji": "🇪🇸",
+      "date": "2025-10-22T04:51:35.769Z",
+      "notes": "",
+      "position": {
+        "lat": "38.413940161575034",
+        "lng": "-4.9916142489118975"
+      }
+    },
+    {
+      "id": "609e",
+      "cityName": "Sardinia",
+      "country": "Italy",
+      "emoji": "🇮🇹",
+      "date": "2025-10-22T04:52:30.733Z",
+      "notes": "This was awesome\n",
+      "position": {
+        "lat": "40.250340791085",
+        "lng": "8.765185155818825"
+      }
     }
   ]
 }
