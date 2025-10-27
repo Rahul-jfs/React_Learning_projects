@@ -1,6 +1,6 @@
 import { createContext, useContext, useState } from "react";
 import { createPortal } from "react-dom";
-import { HiEllipsisHorizontal, HiEllipsisVertical } from "react-icons/hi2";
+import { HiEllipsisVertical } from "react-icons/hi2";
 import styled from "styled-components";
 import { useOutsideClick } from "../hooks/useOutsideClick";
 
@@ -105,18 +105,20 @@ function Toggle({ id }) {
 
 function List({ id, children }) {
   const { openId, position } = useContext(MenuContext);
+  const ref = useOutsideClick(close, false);
 
   if (openId !== id) return null;
 
   return createPortal(
-    <StyledList position={position}>{children}</StyledList>,
+    <StyledList position={position} ref={ref}>
+      {children}
+    </StyledList>,
     document.body
   );
 }
 
 function Button({ children, icon, onClick }) {
   const { close } = useContext(MenuContext);
-  const ref = useOutsideClick(close);
 
   function handleClick() {
     onClick?.();
@@ -125,7 +127,7 @@ function Button({ children, icon, onClick }) {
 
   return (
     <li>
-      <StyledButton onClick={handleClick} ref={ref}>
+      <StyledButton onClick={handleClick}>
         {icon}
         <span>{children}</span>
       </StyledButton>
